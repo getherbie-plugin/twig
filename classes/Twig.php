@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace herbie\sysplugin\twig\classes;
+namespace herbie\plugin\twig\classes;
 
 use Herbie\Application;
 use Herbie\Hook;

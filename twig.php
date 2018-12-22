@@ -1,7 +1,8 @@
 <?php
 
-use herbie\sysplugin\twig\classes\Twig;
+namespace herbie\plugin\twig;
 
+use herbie\plugin\twig\classes\Twig;
 use Herbie\DI;
 use Herbie\Hook;
 
