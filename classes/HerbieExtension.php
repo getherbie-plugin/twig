@@ -12,7 +12,6 @@ namespace herbie\plugin\twig\classes;
 
 use Herbie\Application;
 use Herbie\Finder;
-use Herbie\Helper;
 use Herbie\Menu;
 use Herbie\Page;
 use Herbie\Site;
@@ -215,7 +214,7 @@ class HerbieExtension extends Twig_Extension implements Twig_Extension_GlobalsIn
      */
     public function filterUrlify($url)
     {
-        return Helper\StringHelper::urlify($url);
+        return Application::getService('SlugGenerator')->generate($url);
     }
 
     /**
