@@ -43,7 +43,9 @@ class TwigPlugin
     public function twigifyLayout(\Herbie\Page $page)
     {
         $config = DI::get('Config');
-        $this->twig->getEnvironment()->getExtension('herbie')->setPage($page);
+        $this->twig->getEnvironment()
+            ->getExtension('herbie\\plugin\\twig\\classes\\HerbieExtension')
+            ->setPage($page);
         $extension = trim($config->get('layouts.extension'));
         $layout = empty($extension) ? $page->layout : sprintf('%s.%s', $page->layout, $extension);
         return $this->twig->render($layout);
