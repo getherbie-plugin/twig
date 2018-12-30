@@ -12,8 +12,6 @@
 namespace herbie\plugin\twig\classes;
 
 use Herbie\Application;
-use Herbie\Hook;
-use Herbie\Http\Response;
 use Herbie\Page;
 use Twig_Environment;
 use Twig_Extension_Debug;
@@ -23,6 +21,10 @@ use Twig_Loader_Array;
 
 class Twig
 {
+    /**
+     * @var Application
+     */
+    private $herbie;
 
     /**
      * @var Config
@@ -42,11 +44,12 @@ class Twig
     /**
      * Constructor
      *
-     * @param Config $config
+     * @param Application $herbie
      */
-    public function __construct($config)
+    public function __construct(Application $herbie)
     {
-        $this->config = $config;
+        $this->herbie = $herbie;
+        $this->config = $herbie->getConfig();
         $this->initialized = false;
     }
 
@@ -60,15 +63,16 @@ class Twig
         if (!$this->config->isEmpty('twig.debug')) {
             $this->environment->addExtension(new Twig_Extension_Debug());
         }
-        $this->environment->addExtension(new HerbieExtension());
+        $this->environment->addExtension(new HerbieExtension($this->herbie));
         $this->addTwigPlugins();
 
+        /*
         foreach (Hook::trigger(Hook::CONFIG, 'addTwigFunction') as $function) {
             try {
                 list($name, $callable, $options) = $function;
                 $this->environment->addFunction(new \Twig_SimpleFunction($name, $callable, (array)$options));
             } catch (\Exception $e) {
-                ;/*do nothing else yet*/
+                ; //do nothing else yet
             }
         }
 
@@ -77,7 +81,7 @@ class Twig
                 list($name, $callable, $options) = $filter;
                 $this->environment->addFilter(new \Twig_SimpleFilter($name, $callable, (array)$options));
             } catch (\Exception $e) {
-                ;/*do nothing else yet*/
+                ; //do nothing else yet
             }
         }
 
@@ -86,9 +90,10 @@ class Twig
                 list($name, $callable, $options) = $test;
                 $this->environment->addTest(new \Twig_SimpleTest($name, $callable, (array)$options));
             } catch (\Exception $e) {
-                ;/*do nothing else yet*/
+                ; //do nothing else yet
             }
         }
+        */
 
         $this->initialized = true;
     }
@@ -113,37 +118,6 @@ class Twig
     }
 
     /**
-     * Renders a page and returns a response object.
-     * Catches every exception that occured during the rendering process.
-     * @param Page $page
-     * @return Response
-     */
-    /*public function renderPage(Page $page)
-    {
-
-        try {
-
-            if (empty($page->layout)) {
-                $content = $this->renderPageSegment(0, $page);
-            } else {
-                $content = $this->render($page->layout);
-            }
-
-        } catch (\Exception $e) {
-
-            $page->setError($e);
-            $content = $this->render('error.html.twig');
-
-        }
-
-        $response = new Response($content);
-        $response->setStatus($page->getStatusCode());
-        $response->setHeader('Content-Type', $page->content_type);
-
-        return $response;
-    }*/
-
-    /**
      * Renders a page content segment.
      * @param string|int $segmentId
      * @param Page $page
@@ -152,14 +126,14 @@ class Twig
     public function renderPageSegment($segmentId, Page $page)
     {
         if (is_null($page)) {
-            $page = Application::getPage();
+            $page = $this->herbie->getPage();
         }
 
         $segment = $page->getSegment($segmentId);
 
-        $segment->string = Hook::trigger(Hook::FILTER, 'renderContent', $segment->string, $page->getData());
+        $this->herbie->getPluginManager()->trigger('renderContent', $segment, $page->getData());
 
-        return $segment->string;
+        return $segment;
     }
 
     /**
@@ -192,8 +166,8 @@ class Twig
     private function getContext()
     {
         return [
-            'route' => Application::getService('Request')->getRoute(),
-            'baseUrl' => Application::getService('Request')->getBasePath(),
+            'route' => $this->herbie->getRoute(),
+            'baseUrl' => $this->herbie->getBasePath(),
             'theme' => $this->config->get('theme')
         ];
     }

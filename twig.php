@@ -3,54 +3,68 @@
 namespace herbie\plugin\twig;
 
 use herbie\plugin\twig\classes\Twig;
-use Herbie\DI;
-use Herbie\Hook;
+use Herbie\StringValue;
+use Zend\EventManager\EventInterface;
+use Zend\EventManager\EventManagerInterface;
 
-class TwigPlugin
+class TwigPlugin extends \Herbie\Plugin
 {
+    /** @var Twig */
     private $twig;
 
-    public function install()
+    /** @var EventManagerInterface */
+    private $events;
+
+    public function attach(EventManagerInterface $events, $priority = 1)
     {
-        Hook::attach('pluginsInitialized', [$this, 'initTwig']);
-        Hook::attach('renderContent', [$this, 'twigifyContent']);
-        Hook::attach('renderLayout', [$this, 'twigifyLayout']);
+        $this->events = $events;
+        $events->attach('pluginsInitialized', [$this, 'initTwig'], $priority);
+        $events->attach('renderContent', [$this, 'twigifyContent'], $priority);
+        $events->attach('renderLayout', [$this, 'twigifyLayout'], $priority);
     }
 
     public function initTwig()
     {
-        $config = DI::get('Config');
+        $config = $this->herbie->getConfig();
 
         // Add custom namespace path to Imagine lib
         $vendorDir = $config->get('site.path') . '/../vendor';
         $autoload = require($vendorDir . '/autoload.php');
         $autoload->add('Twig_', __DIR__ . '/vendor/twig/twig/lib');
 
-        $this->twig = new Twig($config);
+        $this->twig = new Twig($this->herbie);
         $this->twig->init();
-        Di::set('Twig', $this->twig);
-        Hook::trigger(Hook::ACTION, 'twigInitialized', $this->twig->getEnvironment());
+        $this->herbie->setTwig($this->twig);
+        $this->events->trigger('twigInitialized', $this->twig->getEnvironment());
     }
 
-    public function twigifyContent($content, array $attributes)
+    public function twigifyContent(EventInterface $event)
     {
-        if (empty($attributes['twig'])) {
-            return $content;
+        $twig = $event->getParam('twig');
+        if (empty($twig)) {
+            return;
         }
-        return $this->twig->renderString($content);
+        /** @var StringValue $content */
+        $content = $event->getTarget();
+        $parsed = $this->twig->renderString($content);
+        $content->set($parsed);
     }
 
-    public function twigifyLayout(\Herbie\Page $page)
+    public function twigifyLayout(EventInterface $event)
     {
-        $config = DI::get('Config');
+        /** @var StringValue $content */
+        $content = $event->getTarget();
+
+        /** @var \Herbie\Page $page */
+        $page = $event->getParam('page');
+
+        $config = $this->herbie->getConfig();
         $this->twig->getEnvironment()
             ->getExtension('herbie\\plugin\\twig\\classes\\HerbieExtension')
             ->setPage($page);
         $extension = trim($config->get('layouts.extension'));
         $layout = empty($extension) ? $page->layout : sprintf('%s.%s', $page->layout, $extension);
-        return $this->twig->render($layout);
+        $content->set($this->twig->render($layout));
     }
 
 }
-
-(new TwigPlugin)->install();
