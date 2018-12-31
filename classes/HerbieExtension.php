@@ -153,8 +153,7 @@ class HerbieExtension extends Twig_Extension implements Twig_Extension_GlobalsIn
             new Twig_SimpleFunction('redirect', [$this, 'functionRedirect'], $options),
             new Twig_SimpleFunction('sitemap', [$this, 'functionSitemap'], $options),
             new Twig_SimpleFunction('translate', [$this, 'functionTranslate'], $options),
-            new Twig_SimpleFunction('url', [$this, 'functionUrl'], $options),
-            new Twig_SimpleFunction('mediafiles', [$this, 'functionMediafiles'], $options),
+            new Twig_SimpleFunction('url', [$this, 'functionUrl'], $options)
         ];
     }
 
@@ -623,26 +622,6 @@ class HerbieExtension extends Twig_Extension implements Twig_Extension_GlobalsIn
     public function functionUrl($route)
     {
         return $this->urlGenerator->generate($route);
-    }
-
-    /**
-     * @param string $type
-     * @return \Traversable
-     */
-    public function functionMediafiles($type = 'images')
-    {
-        $finder = Finder\Finder::create()
-            ->in($this->alias->get('@media'))
-            ->hidden(true);
-
-        if ($type == 'folders') {
-            return $finder->directories();
-        }
-
-        $types = ['images', 'documents', 'archives', 'code', 'videos', 'audio'];
-        $type = in_array($type, $types) ? $type : 'images';
-        $extensions = $this->config->get('media.' . $type);
-        return $finder->files()->extensions($extensions);
     }
 
     /**
