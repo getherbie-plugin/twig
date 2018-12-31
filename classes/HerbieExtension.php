@@ -11,7 +11,6 @@
 namespace herbie\plugin\twig\classes;
 
 use Herbie\Application;
-use Herbie\Finder;
 use Herbie\Menu;
 use Herbie\Page;
 use Herbie\Site;
