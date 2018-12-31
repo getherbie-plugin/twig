@@ -15,15 +15,22 @@ class TwigPlugin extends \Herbie\Plugin
     /** @var EventManagerInterface */
     private $events;
 
+    /**
+     * @param EventManagerInterface $events
+     * @param int $priority
+     */
     public function attach(EventManagerInterface $events, $priority = 1)
     {
         $this->events = $events;
-        $events->attach('pluginsInitialized', [$this, 'initTwig'], $priority);
-        $events->attach('renderContent', [$this, 'twigifyContent'], $priority);
-        $events->attach('renderLayout', [$this, 'twigifyLayout'], $priority);
+        $events->attach('pluginsInitialized', [$this, 'onPluginsInitialized'], $priority);
+        $events->attach('renderContent', [$this, 'onRenderContent'], $priority);
+        $events->attach('renderLayout', [$this, 'onRenderLayout'], $priority);
     }
 
-    public function initTwig()
+    /**
+     * @param EventInterface $event
+     */
+    public function onPluginsInitialized(EventInterface $event)
     {
         $config = $this->herbie->getConfig();
 
@@ -38,22 +45,28 @@ class TwigPlugin extends \Herbie\Plugin
         $this->events->trigger('twigInitialized', $this->twig->getEnvironment());
     }
 
-    public function twigifyContent(EventInterface $event)
+    /**
+     * @param EventInterface $event
+     */
+    public function onRenderContent(EventInterface $event)
     {
         $twig = $event->getParam('twig');
         if (empty($twig)) {
             return;
         }
-        /** @var StringValue $content */
-        $content = $event->getTarget();
-        $parsed = $this->twig->renderString($content);
-        $content->set($parsed);
+        /** @var StringValue $stringValue */
+        $stringValue = $event->getTarget();
+        $parsed = $this->twig->renderString($stringValue->get());
+        $stringValue->set($parsed);
     }
 
-    public function twigifyLayout(EventInterface $event)
+    /**
+     * @param EventInterface $event
+     */
+    public function onRenderLayout(EventInterface $event)
     {
-        /** @var StringValue $content */
-        $content = $event->getTarget();
+        /** @var StringValue $stringValue */
+        $stringValue = $event->getTarget();
 
         /** @var \Herbie\Page $page */
         $page = $event->getParam('page');
@@ -64,7 +77,7 @@ class TwigPlugin extends \Herbie\Plugin
             ->setPage($page);
         $extension = trim($config->get('layouts.extension'));
         $layout = empty($extension) ? $page->layout : sprintf('%s.%s', $page->layout, $extension);
-        $content->set($this->twig->render($layout));
+        $stringValue->set($this->twig->render($layout));
     }
 
 }
