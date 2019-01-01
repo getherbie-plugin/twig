@@ -216,13 +216,13 @@ class HerbieExtension extends Twig_Extension implements Twig_Extension_GlobalsIn
     }
 
     /**
-     * @param Menu\Page\Node $tree
-     * @return Menu\Page\Iterator\FilterIterator
+     * @param Menu\MenuTree $tree
+     * @return Menu\Iterator\FilterIterator
      */
     public function filterVisible($tree)
     {
-        $treeIterator = new Menu\Page\Iterator\TreeIterator($tree);
-        return new Menu\Page\Iterator\FilterIterator($treeIterator);
+        $treeIterator = new Menu\Iterator\TreeIterator($tree);
+        return new Menu\Iterator\FilterIterator($treeIterator);
     }
 
     /**
@@ -288,12 +288,12 @@ class HerbieExtension extends Twig_Extension implements Twig_Extension_GlobalsIn
         $maxDepth = isset($maxDepth) ? (int)$maxDepth : -1;
         $class = isset($class) ? (string)$class : 'sitemap';
 
-        $branch = $this->herbie->getMenuPageNode()->findByRoute($route);
-        $treeIterator = new Menu\Page\Iterator\TreeIterator($branch);
-        $filterIterator = new Menu\Page\Iterator\FilterIterator($treeIterator);
+        $branch = $this->herbie->getMenuNode()->findByRoute($route);
+        $treeIterator = new Menu\Iterator\TreeIterator($branch);
+        $filterIterator = new Menu\Iterator\FilterIterator($treeIterator);
         $filterIterator->setEnabled(!$showHidden);
 
-        $asciiTree = new Menu\Page\Renderer\AsciiTree($filterIterator);
+        $asciiTree = new Menu\Renderer\AsciiTree($filterIterator);
         $asciiTree->setMaxDepth($maxDepth);
         return $asciiTree->render();
     }
@@ -432,15 +432,15 @@ class HerbieExtension extends Twig_Extension implements Twig_Extension_GlobalsIn
         $maxDepth = isset($maxDepth) ? (int)$maxDepth : -1;
         $class = isset($class) ? (string)$class : 'menu';
 
-        $branch = $this->herbie->getMenuPageNode()->findByRoute($route);
-        $treeIterator = new Menu\Page\Iterator\TreeIterator($branch);
+        $branch = $this->herbie->getMenuNode()->findByRoute($route);
+        $treeIterator = new Menu\Iterator\TreeIterator($branch);
 
         // using FilterCallback for better filtering of nested items
         $routeLine = $this->herbie->getRouteLine();
-        $callback = [new Menu\Page\Iterator\FilterCallback($routeLine, $showHidden), 'call'];
+        $callback = [new Menu\Iterator\FilterCallback($routeLine, $showHidden), 'call'];
         $filterIterator = new \RecursiveCallbackFilterIterator($treeIterator, $callback);
 
-        $htmlTree = new Menu\Page\Renderer\HtmlTree($filterIterator);
+        $htmlTree = new Menu\Renderer\HtmlTree($filterIterator);
         $htmlTree->setMaxDepth($maxDepth);
         $htmlTree->setClass($class);
         $htmlTree->itemCallback = function (\Herbie\Node $node) {
@@ -464,7 +464,7 @@ class HerbieExtension extends Twig_Extension implements Twig_Extension_GlobalsIn
         $rootTitle = isset($rootTitle) ? $rootTitle : null;
         $reverse = isset($reverse) ? (bool) $reverse : false;
 
-        $count = count($this->herbie->getMenuPageRootPath());
+        $count = count($this->herbie->getMenuRootPath());
 
         $titles = [];
 
@@ -472,7 +472,7 @@ class HerbieExtension extends Twig_Extension implements Twig_Extension_GlobalsIn
             $titles[] = $siteTitle;
         }
 
-        foreach ($this->herbie->getMenuPageRootPath() as $item) {
+        foreach ($this->herbie->getMenuRootPath() as $item) {
             if ((1 == $count) && $item->isStartPage() && !empty($rootTitle)) {
                 return $rootTitle;
             }
@@ -587,12 +587,12 @@ class HerbieExtension extends Twig_Extension implements Twig_Extension_GlobalsIn
         $maxDepth = isset($maxDepth) ? (int)$maxDepth : -1;
         $class = isset($class) ? (string)$class : 'sitemap';
 
-        $branch = $this->herbie->getMenuPageNode()->findByRoute($route);
-        $treeIterator = new Menu\Page\Iterator\TreeIterator($branch);
-        $filterIterator = new Menu\Page\Iterator\FilterIterator($treeIterator);
+        $branch = $this->herbie->getMenuNode()->findByRoute($route);
+        $treeIterator = new Menu\Iterator\TreeIterator($branch);
+        $filterIterator = new Menu\Iterator\FilterIterator($treeIterator);
         $filterIterator->setEnabled(!$showHidden);
 
-        $htmlTree = new Menu\Page\Renderer\HtmlTree($filterIterator);
+        $htmlTree = new Menu\Renderer\HtmlTree($filterIterator);
         $htmlTree->setMaxDepth($maxDepth);
         $htmlTree->setClass($class);
         $htmlTree->itemCallback = function (\Herbie\Node $node) {
