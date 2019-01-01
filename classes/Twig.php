@@ -119,11 +119,11 @@ class Twig
 
     /**
      * Renders a page content segment.
-     * @param string|int $segmentId
+     * @param string $segmentId
      * @param Page $page
      * @return string
      */
-    public function renderPageSegment($segmentId, Page $page)
+    public function renderPageSegment(string $segmentId, Page $page)
     {
         if (is_null($page)) {
             $page = $this->herbie->getPage();
@@ -167,7 +167,7 @@ class Twig
     {
         return [
             'route' => $this->herbie->getRoute(),
-            'baseUrl' => $this->herbie->getBasePath(),
+            'baseUrl' => $this->herbie->getEnvironment()->getBaseUrl(),
             'theme' => $this->config->get('theme')
         ];
     }
