@@ -125,9 +125,9 @@ class Twig
      */
     public function renderPageSegment(string $segmentId, Page $page)
     {
-        if (is_null($page)) {
+        /*if (is_null($page)) {
             $page = $this->herbie->getPage();
-        }
+        }*/
 
         $segment = $page->getSegment($segmentId);
 

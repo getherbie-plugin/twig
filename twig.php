@@ -19,7 +19,7 @@ class TwigPlugin extends \Herbie\Plugin
      * @param EventManagerInterface $events
      * @param int $priority
      */
-    public function attach(EventManagerInterface $events, $priority = 1)
+    public function attach(EventManagerInterface $events, $priority = 1): void
     {
         $this->events = $events;
         $events->attach('onPluginsInitialized', [$this, 'onPluginsInitialized'], $priority);
@@ -32,7 +32,7 @@ class TwigPlugin extends \Herbie\Plugin
      */
     public function onPluginsInitialized(EventInterface $event)
     {
-        $config = $this->herbie->getConfig();
+        #$config = $this->herbie->getConfig();
 
         // Add custom namespace path to Imagine lib
         #$vendorDir = $config->get('site.path') . '/../vendor';

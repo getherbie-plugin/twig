@@ -12,7 +12,6 @@ namespace herbie\plugin\twig\classes;
 
 use Herbie\Application;
 use Herbie\Menu;
-use Herbie\Page;
 use Herbie\Site;
 use Twig_Extension;
 use Twig_Extension_GlobalsInterface;
@@ -286,7 +285,7 @@ class HerbieExtension extends Twig_Extension implements Twig_Extension_GlobalsIn
         $maxDepth = isset($maxDepth) ? (int)$maxDepth : -1;
         $class = isset($class) ? (string)$class : 'sitemap';
 
-        $branch = $this->herbie->getMenuNode()->findByRoute($route);
+        $branch = $this->herbie->getMenuTree()->findByRoute($route);
         $treeIterator = new Menu\Iterator\TreeIterator($branch);
         $filterIterator = new Menu\Iterator\FilterIterator($treeIterator);
         $filterIterator->setEnabled(!$showHidden);
@@ -430,7 +429,7 @@ class HerbieExtension extends Twig_Extension implements Twig_Extension_GlobalsIn
         $maxDepth = isset($maxDepth) ? (int)$maxDepth : -1;
         $class = isset($class) ? (string)$class : 'menu';
 
-        $branch = $this->herbie->getMenuNode()->findByRoute($route);
+        $branch = $this->herbie->getMenuTree()->findByRoute($route);
         $treeIterator = new Menu\Iterator\TreeIterator($branch);
 
         // using FilterCallback for better filtering of nested items
@@ -581,7 +580,7 @@ class HerbieExtension extends Twig_Extension implements Twig_Extension_GlobalsIn
         $maxDepth = isset($maxDepth) ? (int)$maxDepth : -1;
         $class = isset($class) ? (string)$class : 'sitemap';
 
-        $branch = $this->herbie->getMenuNode()->findByRoute($route);
+        $branch = $this->herbie->getMenuTree()->findByRoute($route);
         $treeIterator = new Menu\Iterator\TreeIterator($branch);
         $filterIterator = new Menu\Iterator\FilterIterator($treeIterator);
         $filterIterator->setEnabled(!$showHidden);
@@ -589,7 +588,7 @@ class HerbieExtension extends Twig_Extension implements Twig_Extension_GlobalsIn
         $htmlTree = new Menu\Renderer\HtmlTree($filterIterator);
         $htmlTree->setMaxDepth($maxDepth);
         $htmlTree->setClass($class);
-        $htmlTree->itemCallback = function (\Herbie\Node $node) {
+        $htmlTree->itemCallback = function (Menu\MenuTree $node) {
             $menuItem = $node->getMenuItem();
             $href = $this->urlGenerator->generate($menuItem->route);
             return sprintf('<a href="%s">%s</a>', $href, $menuItem->getMenuTitle());
