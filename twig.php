@@ -22,9 +22,9 @@ class TwigPlugin extends \Herbie\Plugin
     public function attach(EventManagerInterface $events, $priority = 1)
     {
         $this->events = $events;
-        $events->attach('pluginsInitialized', [$this, 'onPluginsInitialized'], $priority);
-        $events->attach('renderContent', [$this, 'onRenderContent'], $priority);
-        $events->attach('renderLayout', [$this, 'onRenderLayout'], $priority);
+        $events->attach('onPluginsInitialized', [$this, 'onPluginsInitialized'], $priority);
+        $events->attach('onRenderContent', [$this, 'onRenderContent'], $priority);
+        $events->attach('onRenderLayout', [$this, 'onRenderLayout'], $priority);
     }
 
     /**
@@ -42,7 +42,7 @@ class TwigPlugin extends \Herbie\Plugin
         $this->twig = new Twig($this->herbie);
         $this->twig->init();
         $this->herbie->setTwig($this->twig);
-        $this->events->trigger('twigInitialized', $this->twig->getEnvironment());
+        $this->events->trigger('onTwigInitialized', $this->twig->getEnvironment());
     }
 
     /**

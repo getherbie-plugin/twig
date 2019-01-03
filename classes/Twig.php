@@ -131,7 +131,7 @@ class Twig
 
         $segment = $page->getSegment($segmentId);
 
-        $this->herbie->getPluginManager()->trigger('renderContent', $segment, $page->getData());
+        $this->herbie->getPluginManager()->trigger('onRenderContent', $segment, $page->getData());
 
         return $segment;
     }
