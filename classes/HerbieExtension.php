@@ -162,8 +162,6 @@ class HerbieExtension extends Twig_Extension implements Twig_Extension_GlobalsIn
     public function getTests()
     {
         return [
-            new Twig_SimpleTest('page', [$this, 'testIsPage']),
-            new Twig_SimpleTest('post', [$this, 'testIsPost']),
             new Twig_SimpleTest('readable', [$this, 'testIsReadable']),
             new Twig_SimpleTest('writable', [$this, 'testIsWritable'])
         ];
@@ -479,10 +477,6 @@ class HerbieExtension extends Twig_Extension implements Twig_Extension_GlobalsIn
             $titles[] = $item->title;
         }
 
-        if ($this->testIsPost($this->page)) {
-            $titles[] = $this->page->title;
-        }
-
         if (!empty($reverse)) {
             $titles = array_reverse($titles);
         }
@@ -621,22 +615,6 @@ class HerbieExtension extends Twig_Extension implements Twig_Extension_GlobalsIn
     public function functionUrl($route)
     {
         return $this->urlGenerator->generate($route);
-    }
-
-    /**
-     * @return boolean
-     */
-    public function testIsPage(Page $page)
-    {
-        return !$this->testIsPost($page);
-    }
-
-    /**
-     * @return boolean
-     */
-    public function testIsPost(Page $page)
-    {
-        return 0 === strpos($page->getPath(), '@post');
     }
 
     /**
